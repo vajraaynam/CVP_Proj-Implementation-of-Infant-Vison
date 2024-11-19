@@ -70,39 +70,34 @@ class ContrastSensitivity:
 
 
 class VisualAcuity:
-    def __init__(self, age):
+    def __init__(self, age_in_months):
         """
-        Initialize the visual acuity transformation with the age in weeks.
-        
-        Args:
-        - age: Age in weeks (int or float).
+        Initialize the visual acuity transformation with the age in months.
         """
-        self.age = age
+        self.age = age_in_months
+
+    def compute_acuity_scale(self):
+        """
+        Map age in months to the 20/20 to 20/600 visual acuity scale.
+        """
+        max_age = 24  # Age in months at which full acuity (20/20) is reached
+        max_acuity = 20  # 20/20 vision
+        min_acuity = 600  # 20/600 vision (newborns)
+        return max(min_acuity - (self.age / max_age) * (min_acuity - max_acuity), max_acuity)
 
     def compute_sigma(self):
         """
-        Compute the Gaussian blur sigma based on age.
-        The sigma decreases as age increases, simulating improved acuity.
-        
-        Returns:
-        - Sigma for Gaussian blur.
+        Compute the Gaussian blur sigma based on visual acuity scale.
         """
-        max_sigma = 4.0  # Maximum blur for newborns
-        min_sigma = 0.5  # Minimum blur for adults
-        max_age = 40     # Age at which full acuity is achieved
-        progress = min(self.age / max_age, 1.0)
-        return max_sigma - (max_sigma - min_sigma) * progress
+        acuity_scale = self.compute_acuity_scale()
+        # Map the visual acuity scale to a Gaussian sigma (inversely proportional)
+        max_sigma = 4.0  # Maximum blur
+        min_sigma = 0.5  # Minimum blur
+        return max_sigma * (acuity_scale / 600)  # Normalize using the max acuity value (20/600)
 
     def gaussian_blur(self, image, sigma):
         """
         Apply Gaussian blur to an image tensor.
-        
-        Args:
-        - image: Tensor with shape (C, H, W).
-        - sigma: Standard deviation for the Gaussian blur.
-        
-        Returns:
-        - Blurred image tensor with the same shape.
         """
         kernel_size = int(2 * round(3 * sigma) + 1)
         kernel_size = max(kernel_size, 3)  # Ensure kernel size is at least 3
@@ -111,26 +106,18 @@ class VisualAcuity:
     def __call__(self, image):
         """
         Apply the visual acuity transformation to the input image.
-        
-        Args:
-        - image: Input tensor of shape (C, H, W) or (H, W).
-        
-        Returns:
-        - Transformed image tensor of shape (C, H, W) as torch.Tensor.
         """
         # Handle grayscale image (H, W) by adding a channel dimension
         if image.ndim == 2:  # Grayscale input
             image = image.unsqueeze(0)
 
-        # Compute the blur sigma based on age
+        # Compute the blur sigma based on visual acuity
         sigma = self.compute_sigma()
 
         # Apply Gaussian blur
         blurred_image = self.gaussian_blur(image, sigma)
 
-        # Ensure output is a torch tensor
         return torch.tensor(blurred_image, dtype=torch.float32)
-
 
 def load_dataset(transform):
     """
