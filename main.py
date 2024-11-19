@@ -6,8 +6,8 @@ from eval_performance import evaluate_performance, plot_performance
 def main():
     custom_transform = transforms.Compose([
     transforms.ToTensor(),
-    ContrastSensitivity(age=16),  # Adjust age as required
-    VisualAcuity(age=16)])  
+    ContrastSensitivity(age=20),  # Adjust age as required
+    VisualAcuity(age=20)])  
 
     no_transform = [transforms.ToTensor()]
 

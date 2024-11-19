@@ -124,7 +124,7 @@ def load_dataset(transform):
     Load the STL10 dataset with the given transform.
     """
     dataset = STL10(root='./data', split='train', download=True, transform=transform)
-    return torch.utils.data.DataLoader(dataset, batch_size=4, shuffle=False)
+    return torch.utils.data.DataLoader(dataset, batch_size=5, shuffle=False)
 
 
 def display_images(transform, no_transform):
@@ -144,9 +144,9 @@ def display_images(transform, no_transform):
     transform_images = transform_images.numpy().transpose((0, 2, 3, 1))
 
     # Plot the images
-    fig, axes = plt.subplots(2, 4, figsize=(12, 8))  # Two rows: top (no transform), bottom (with transform)
+    fig, axes = plt.subplots(2, 5, figsize=(12, 8))  # Two rows: top (no transform), bottom (with transform)
 
-    for i in range(4):
+    for i in range(5):
         # Top row: No transform
         axes[0, i].imshow(no_transform_images[i], cmap='gray')
         axes[0, i].set_title(f"No Transform\nClass: {no_transform_labels[i].item()}")
