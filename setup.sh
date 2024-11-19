@@ -27,6 +27,8 @@ dependencies=(
     "numpy"
     "scipy"
     "scikit-image"
+    "time"
+    "os"
 )
 
 # Install the dependencies

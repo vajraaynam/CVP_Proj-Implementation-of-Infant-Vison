@@ -1,12 +1,8 @@
 from torchvision import transforms
-from torchvision.datasets import STL10
-import torch
-import matplotlib.pyplot as plt
+from torchvision.transforms.functional import gaussian_blur
 import numpy as np
 from scipy.fftpack import fft2, fftshift, ifft2
 from skimage.color import rgb2gray
-from torchvision.transforms.functional import gaussian_blur
-
 
 class ContrastSensitivity:
     def __init__(self, age):
@@ -118,46 +114,3 @@ class VisualAcuity:
         blurred_image = self.gaussian_blur(image, sigma)
 
         return torch.tensor(blurred_image, dtype=torch.float32)
-
-def load_dataset(transform):
-    """
-    Load the STL10 dataset with the given transform.
-    """
-    dataset = STL10(root='./data', split='train', download=True, transform=transform)
-    return torch.utils.data.DataLoader(dataset, batch_size=4, shuffle=False)
-
-
-def display_images(transform, no_transform):
-    """
-    Display a batch of images with no transform (top) and with transform (bottom).
-    """
-    # Load the datasets
-    no_transform_loader = load_dataset(transform=transforms.Compose(no_transform))
-    transform_loader = load_dataset(transform=transform)
-
-    # Get the first batch from each DataLoader
-    no_transform_images, no_transform_labels = next(iter(no_transform_loader))
-    transform_images, transform_labels = next(iter(transform_loader))
-
-    # Convert from (batch_size, C, H, W) to (batch_size, H, W, C) for plotting
-    no_transform_images = no_transform_images.numpy().transpose((0, 2, 3, 1))
-    transform_images = transform_images.numpy().transpose((0, 2, 3, 1))
-
-    # Plot the images
-    fig, axes = plt.subplots(2, 4, figsize=(12, 8))  # Two rows: top (no transform), bottom (with transform)
-
-    for i in range(4):
-        # Top row: No transform
-        axes[0, i].imshow(no_transform_images[i], cmap='gray')
-        axes[0, i].set_title(f"No Transform\nClass: {no_transform_labels[i].item()}")
-        axes[0, i].axis('off')
-
-        # Bottom row: With transform
-        axes[1, i].imshow(transform_images[i], cmap='gray')
-        axes[1, i].set_title(f"Transform\nClass: {transform_labels[i].item()}")
-        axes[1, i].axis('off')
-
-    plt.tight_layout()
-    plt.savefig('ausgabe_bild.png')
-    plt.show()
-    
