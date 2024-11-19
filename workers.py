@@ -70,11 +70,11 @@ class ContrastSensitivity:
 
 
 class VisualAcuity:
-    def __init__(self, age_in_months):
+    def __init__(self, age):
         """
         Initialize the visual acuity transformation with the age in months.
         """
-        self.age = age_in_months
+        self.age = age
 
     def compute_acuity_scale(self):
         """
